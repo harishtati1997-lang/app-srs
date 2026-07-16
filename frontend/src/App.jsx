@@ -60,6 +60,9 @@ function App() {
         <Route path="/invoices/:id/view" element={
           isAuthenticated ? <InvoiceView /> : <Navigate to="/login" />
         } />
+
+        {/* Catch-all redirect for mistyped URLs */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

@@ -1,6 +1,6 @@
 import os
 import json
-from datetime import datetime
+from datetime import datetime, date
 from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
@@ -16,7 +16,7 @@ def model_to_dict(obj):
     data = {}
     for column in obj.__table__.columns:
         value = getattr(obj, column.name)
-        if isinstance(value, (datetime, datetime.date if hasattr(datetime, 'date') else type(None))):
+        if isinstance(value, (datetime, date)):
             if value is not None:
                 value = value.isoformat()
         data[column.name] = value
