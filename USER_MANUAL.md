@@ -10,9 +10,17 @@ The **SYAM INFRA Management System** is a powerful, centralized digital portal d
 
 ## 🔐 2. Getting Started & User Roles
 
-### Accessing the Portal
+### Accessing the Portal & Default Login Credentials
+To get started right away, use the default administrator credentials created when the system initializes:
+
+> [!IMPORTANT]
+> **Default Initial Login Credentials**
+> - **Username**: `admin`
+> - **Password**: `admin123`
+> *(Note: We strongly advise logging into the Profile page after your first login to change your password for security.)*
+
 1. Open the web portal URL provided by your system administrator.
-2. Enter your **Username** and **Password** on the secure login screen.
+2. Enter your **Username (`admin`)** and **Password (`admin123`)** on the secure login screen.
 3. Click **Login** to enter your personalized dashboard.
 
 ### Understanding User Roles
