@@ -29,25 +29,71 @@ const Reports = () => {
 
   const generateReportPDF = () => {
     const doc = new jsPDF();
-    
-    doc.setFontSize(18);
-    doc.text(`Financial Report`, 14, 22);
-    
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+
+    // Top Header Banner
+    doc.setFillColor(30, 41, 59); // Deep slate blue (#1e293b)
+    doc.rect(0, 0, pageWidth, 28, 'F');
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255);
+    doc.text("SYAM INFRA", 14, 12);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("EXECUTIVE FINANCIAL REPORT", 14, 20);
+
+    doc.setFontSize(9);
+    doc.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`, pageWidth - 14, 16, { align: 'right' });
+
+    // Summary Card Box
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(14, 34, pageWidth - 28, 20, 2, 2, 'FD');
+
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
-    doc.setTextColor(100);
-    doc.text(`Date Range: ${startDate || 'Start'} to ${endDate || 'Today'}`, 14, 30);
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Report Period: ${startDate || 'All Time (Start)'} to ${endDate || 'Present'}`, 18, 46);
 
     autoTable(doc, {
-      startY: 40,
-      head: [['Metric', 'Value']],
+      startY: 62,
+      head: [['Financial Metric', 'Amount (Rs.)']],
       body: [
-        ['Total Revenue', `Rs. ${reportData.total_revenue.toLocaleString('en-IN')}`],
-        ['Total Expenses', `Rs. ${reportData.total_expenses.toLocaleString('en-IN')}`],
-        ['Net Profit/Loss', `Rs. ${reportData.profit.toLocaleString('en-IN')}`]
+        ['Total Revenue (Inflows)', `Rs. ${reportData.total_revenue.toLocaleString('en-IN')}`],
+        ['Total Expenses (Outflows)', `Rs. ${reportData.total_expenses.toLocaleString('en-IN')}`],
+        ['Net Profit / Balance', `Rs. ${reportData.profit.toLocaleString('en-IN')}`]
       ],
       theme: 'grid',
-      headStyles: { fillColor: [41, 128, 185] }
+      headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 'auto' },
+        1: { halign: 'right', fontStyle: 'bold', cellWidth: 70 }
+      },
+      didParseCell: function (data) {
+        if (data.section === 'body' && data.row.index === 2) {
+          const isProfit = reportData.profit >= 0;
+          data.cell.styles.textColor = isProfit ? [22, 163, 74] : [185, 28, 28];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
     });
+
+    // Footer across all pages
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(14, pageHeight - 15, pageWidth - 14, pageHeight - 15);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text("SYAM INFRA - Confidential Financial Record", 14, pageHeight - 9);
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth - 14, pageHeight - 9, { align: 'right' });
+    }
     
     return doc;
   };

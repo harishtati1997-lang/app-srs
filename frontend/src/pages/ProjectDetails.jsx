@@ -39,83 +39,196 @@ const ProjectDetails = () => {
     const pendingBalance = project.value - totalReceived;
 
     const doc = new jsPDF();
-    
-    // Title
-    doc.setFontSize(18);
-    doc.text(`Client Ledger: ${project.name}`, 14, 22);
-      
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+
+    // --- Top Header Banner ---
+    doc.setFillColor(30, 41, 59); // Deep slate blue (#1e293b)
+    doc.rect(0, 0, pageWidth, 28, 'F');
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255);
+    doc.text("SYAM INFRA", 14, 12);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("CLIENT LEDGER & FINANCIAL STATEMENT", 14, 20);
+
+    doc.setFontSize(9);
+    doc.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`, pageWidth - 14, 16, { align: 'right' });
+
+    // --- Project & Client Information Box ---
+    doc.setFillColor(248, 250, 252); // Soft light background (#f8fafc)
+    doc.setDrawColor(226, 232, 240); // Border color (#e2e8f0)
+    doc.roundedRect(14, 34, pageWidth - 28, 30, 2, 2, 'FD');
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Project: ${project.name}`, 18, 43);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(71, 85, 105);
+    doc.text(`Project ID: ${project.id} | Status: ${project.status}`, 18, 50);
+    doc.text(`Client Name: ${project.client_name || 'N/A'} | Contact: ${project.client_phone || 'N/A'}`, 18, 57);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Total Value: Rs. ${project.value.toLocaleString('en-IN')}`, pageWidth - 18, 45, { align: 'right' });
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(pendingBalance > 0 ? 220 : 39, pendingBalance > 0 ? 38 : 174, pendingBalance > 0 ? 38 : 96);
+    doc.text(`Pending Due: Rs. ${pendingBalance.toLocaleString('en-IN')}`, pageWidth - 18, 54, { align: 'right' });
+
+    // Helper to check page break for section headings
+    let currentY = 74;
+    const checkPageBreak = (neededSpace) => {
+      if (currentY + neededSpace > pageHeight - 25) {
+        doc.addPage();
+        currentY = 20;
+      }
+    };
+
+    // --- Section 1: Financial Summary ---
+    checkPageBreak(50);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(30, 41, 59);
+    doc.text("1. Financial Summary", 14, currentY);
+
+    autoTable(doc, {
+      startY: currentY + 4,
+      head: [['Financial Description', 'Amount (Rs.)']],
+      body: [
+        ['Total Project Value', `Rs. ${project.value.toLocaleString('en-IN')}`],
+        ['Amount Received (Till Now)', `Rs. ${totalReceived.toLocaleString('en-IN')}`],
+        ['Pending Balance (To Pay)', `Rs. ${pendingBalance.toLocaleString('en-IN')}`],
+        ['Total Internal Expenses', `Rs. ${totalExpenses.toLocaleString('en-IN')}`]
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 'auto' },
+        1: { halign: 'right', fontStyle: 'bold', cellWidth: 60 }
+      },
+      didParseCell: function (data) {
+        if (data.section === 'body' && data.row.index === 2) {
+          data.cell.styles.textColor = [185, 28, 28]; // Red highlight for Pending Balance
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    });
+
+    currentY = doc.lastAutoTable.finalY + 12;
+
+    // --- Section 2: Payment Stages & History ---
+    if (payments.length > 0) {
+      checkPageBreak(40);
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.setTextColor(100);
-      doc.text(`Project ID: ${project.id} | Status: ${project.status}`, 14, 30);
-      
-      // Summary Box
-      autoTable(doc, {
-        startY: 35,
-        head: [['Financial Summary', 'Amount']],
-        body: [
-          ['Total Project Value', `Rs. ${project.value.toLocaleString('en-IN')}`],
-          ['Amount Received (Till Now)', `Rs. ${totalReceived.toLocaleString('en-IN')}`],
-          ['Pending Balance (To Pay)', `Rs. ${pendingBalance.toLocaleString('en-IN')}`],
-          ['Total Expenses (Internal)', `Rs. ${totalExpenses.toLocaleString('en-IN')}`]
-        ],
-        theme: 'grid',
-        headStyles: { fillColor: [41, 128, 185] }
+      doc.setTextColor(30, 41, 59);
+      doc.text("2. Payment Stages & Receipt History", 14, currentY);
+
+      let paymentBody = [];
+      payments.forEach(p => {
+        paymentBody.push([
+          p.stage_name || 'N/A', 
+          `Rs. ${p.expected_amount?.toLocaleString('en-IN') || 0}`, 
+          `Rs. ${p.amount_received?.toLocaleString('en-IN') || 0}`, 
+          p.status || 'Pending', 
+          p.due_date || 'N/A'
+        ]);
+        
+        if (p.history && p.history.length > 0) {
+          p.history.forEach((h, index) => {
+            paymentBody.push([
+              `   -> Payment #${index + 1}`,
+              '',
+              `Rs. ${h.amount?.toLocaleString('en-IN') || 0}`,
+              'Received',
+              h.payment_date || 'N/A'
+            ]);
+          });
+        }
       });
 
-      // Payments
-      if (payments.length > 0) {
-        let paymentBody = [];
-        payments.forEach(p => {
-          paymentBody.push([
-            p.stage_name || 'N/A', 
-            `Rs. ${p.expected_amount?.toLocaleString('en-IN') || 0}`, 
-            `Rs. ${p.amount_received?.toLocaleString('en-IN') || 0}`, 
-            p.status, 
-            p.due_date || 'N/A'
-          ]);
-          
-          if (p.history && p.history.length > 0) {
-            p.history.forEach((h, index) => {
-              paymentBody.push([
-                `   ↳ Payment ${index + 1}`,
-                '',
-                `Rs. ${h.amount?.toLocaleString('en-IN') || 0}`,
-                'Received',
-                h.payment_date || 'N/A'
-              ]);
-            });
+      autoTable(doc, {
+        startY: currentY + 4,
+        head: [['Payment Stage / History', 'Expected', 'Received', 'Status', 'Date']],
+        body: paymentBody,
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold' },
+        columnStyles: {
+          1: { halign: 'right' },
+          2: { halign: 'right' },
+          3: { halign: 'center' },
+          4: { halign: 'center' }
+        },
+        didParseCell: function (data) {
+          if (data.section === 'body') {
+            const stageText = data.row.raw[0] || '';
+            if (stageText.startsWith('   ->')) {
+              data.cell.styles.fontStyle = 'italic';
+              data.cell.styles.textColor = [100, 116, 139];
+              if (data.column.index === 0) {
+                data.cell.styles.cellPadding = { top: 2, right: 2, bottom: 2, left: 8 };
+              }
+            } else {
+              if (data.column.index === 0) {
+                data.cell.styles.fontStyle = 'bold';
+              }
+            }
           }
-        });
+        }
+      });
 
-        autoTable(doc, {
-          startY: doc.lastAutoTable.finalY + 15,
-          head: [['Payment Stage', 'Expected', 'Received', 'Status', 'Date']],
-          body: paymentBody,
-          theme: 'striped',
-          headStyles: { fillColor: [39, 174, 96] }
-        });
-      }
+      currentY = doc.lastAutoTable.finalY + 12;
+    }
 
-      // Expenses
-      if (expenses.length > 0) {
-        autoTable(doc, {
-          startY: (doc.lastAutoTable ? doc.lastAutoTable.finalY : 35) + 15,
-          head: [['Category', 'Amount', 'Date', 'Description']],
-          body: expenses.map(e => [
-            e.category || 'N/A', 
-            `Rs. ${e.amount?.toLocaleString('en-IN') || 0}`, 
-            e.date || 'N/A',
-            e.description || 'N/A'
-          ]),
-          theme: 'striped',
-          headStyles: { fillColor: [192, 57, 43] },
-          columnStyles: {
-            3: { cellWidth: 60 } // Make description column wider
-          }
-        });
-      }
+    // --- Section 3: Project Expenses ---
+    if (expenses.length > 0) {
+      checkPageBreak(40);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(30, 41, 59);
+      doc.text("3. Project Expenses & Outflows", 14, currentY);
 
-      return doc;
+      autoTable(doc, {
+        startY: currentY + 4,
+        head: [['Category', 'Description', 'Date', 'Amount (Rs.)']],
+        body: expenses.map(e => [
+          e.category || 'N/A', 
+          e.description || 'N/A',
+          e.date || 'N/A',
+          `Rs. ${e.amount?.toLocaleString('en-IN') || 0}`
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [185, 28, 28], textColor: [255, 255, 255], fontStyle: 'bold' },
+        columnStyles: {
+          1: { cellWidth: 65 },
+          2: { halign: 'center', cellWidth: 35 },
+          3: { halign: 'right', fontStyle: 'bold', cellWidth: 40 }
+        }
+      });
+    }
+
+    // --- Footer across all pages ---
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(14, pageHeight - 15, pageWidth - 14, pageHeight - 15);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text("SYAM INFRA - Confidential Financial Record", 14, pageHeight - 9);
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth - 14, pageHeight - 9, { align: 'right' });
+    }
+
+    return doc;
   };
 
   const exportLedger = async () => {

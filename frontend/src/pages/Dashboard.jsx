@@ -37,29 +37,74 @@ const Dashboard = () => {
 
   const generateDashboardPDF = () => {
     const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.text(`Dashboard Overview`, 14, 22);
-    
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+
+    // Top Header Banner
+    doc.setFillColor(30, 41, 59); // Deep slate blue (#1e293b)
+    doc.rect(0, 0, pageWidth, 28, 'F');
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255);
+    doc.text("SYAM INFRA", 14, 12);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("EXECUTIVE DASHBOARD OVERVIEW", 14, 20);
+
+    doc.setFontSize(9);
+    doc.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`, pageWidth - 14, 16, { align: 'right' });
+
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
-    doc.setTextColor(100);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+    doc.setTextColor(30, 41, 59);
+    doc.text("1. Key Performance Metrics", 14, 38);
 
     autoTable(doc, {
-      startY: 40,
-      head: [['Metric', 'Value']],
+      startY: 43,
+      head: [['Metric Description', 'Total Value']],
       body: statCards.map(card => [card.title, card.value.toString()]),
       theme: 'grid',
-      headStyles: { fillColor: [41, 128, 185] }
+      headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 'auto' },
+        1: { halign: 'right', fontStyle: 'bold', cellWidth: 70 }
+      }
     });
 
     if (stats?.recent_projects?.length > 0) {
+      const nextY = doc.lastAutoTable.finalY + 12;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(30, 41, 59);
+      doc.text("2. Recent Projects Status & Progress", 14, nextY);
+
       autoTable(doc, {
-        startY: doc.lastAutoTable.finalY + 15,
-        head: [['Recent Project', 'Status', 'Progress']],
+        startY: nextY + 5,
+        head: [['Project Name', 'Current Status', 'Progress (%)']],
         body: stats.recent_projects.map(p => [p.name, p.status, `${p.progress_percentage}%`]),
         theme: 'striped',
-        headStyles: { fillColor: [39, 174, 96] }
+        headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold' },
+        columnStyles: {
+          1: { halign: 'center', cellWidth: 50 },
+          2: { halign: 'right', fontStyle: 'bold', cellWidth: 40 }
+        }
       });
+    }
+
+    // Footer across all pages
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(14, pageHeight - 15, pageWidth - 14, pageHeight - 15);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text("SYAM INFRA - Confidential Management Dashboard", 14, pageHeight - 9);
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth - 14, pageHeight - 9, { align: 'right' });
     }
 
     return doc;
