@@ -6,22 +6,26 @@ import api from '../utils/api';
 const Layout = ({ toggleTheme, theme, onLogout }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const userRole = localStorage.getItem('userRole') || 'Viewer';
+  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'Viewer');
   const [avatar, setAvatar] = useState('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix');
 
   useEffect(() => {
-    // Fetch profile to get avatar
-    const fetchAvatar = async () => {
+    // Fetch profile to get avatar and verify latest role
+    const fetchProfile = async () => {
       try {
         const res = await api.get('/users/me');
         if (res.data.avatar) setAvatar(res.data.avatar);
+        if (res.data.role) {
+          localStorage.setItem('userRole', res.data.role);
+          setUserRole(res.data.role);
+        }
       } catch (err) {
         console.error(err);
       }
     };
-    fetchAvatar();
+    fetchProfile();
 
-    const handleAvatarChange = () => fetchAvatar();
+    const handleAvatarChange = () => fetchProfile();
     window.addEventListener('avatarChanged', handleAvatarChange);
     return () => window.removeEventListener('avatarChanged', handleAvatarChange);
   }, []);
