@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base, SessionLocal
 from . import models, auth
-from .routers import auth as auth_router, projects, dashboard, payments, expenses, documents, reports, progress, users, invoices, materials
+from .routers import auth as auth_router, projects, dashboard, payments, expenses, documents, reports, progress, users, invoices, materials, backup
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -28,6 +28,7 @@ app.include_router(progress.router)
 app.include_router(users.router)
 app.include_router(invoices.router)
 app.include_router(materials.router)
+app.include_router(backup.router)
 @app.on_event("startup")
 def create_admin_user():
     db = SessionLocal()

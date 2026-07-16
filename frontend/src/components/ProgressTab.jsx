@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { Activity } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ProgressTab = ({ project, onProgressUpdate }) => {
   const [history, setHistory] = useState([]);
@@ -32,9 +33,10 @@ const ProgressTab = ({ project, onProgressUpdate }) => {
       
       // Update parent component's progress
       onProgressUpdate(payload.percentage_update);
+      toast.success('Progress stage recorded!');
     } catch (err) {
       console.error(err);
-      alert('Failed to add progress stage.');
+      toast.error('Failed to add progress stage.');
     }
   };
 

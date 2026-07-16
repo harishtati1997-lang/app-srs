@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { numberToWords } from '../utils/numberToWords';
+import toast from 'react-hot-toast';
 
 const PaymentsTab = ({ projectId }) => {
   const [schedules, setSchedules] = useState([]);
@@ -41,6 +42,7 @@ const PaymentsTab = ({ projectId }) => {
     setEditingId(null);
     setFormData({ stage_name: '', expected_amount: '', due_date: '' });
     fetchSchedules();
+    toast.success(editingId ? 'Stage updated successfully!' : 'Stage created successfully!');
   };
 
   const handleEditStage = (schedule) => {
@@ -62,6 +64,7 @@ const PaymentsTab = ({ projectId }) => {
     setShowCollectModal(false);
     setCollectData({ amount: '', payment_date: '', notes: '' });
     fetchSchedules();
+    toast.success('Payment recorded successfully!');
   };
 
   const openCollectModal = (schedule) => {
@@ -82,9 +85,10 @@ const PaymentsTab = ({ projectId }) => {
         await api.delete(`/payments/history/${historyId}`);
         setShowHistoryModal(false);
         fetchSchedules();
+        toast.success('Payment record deleted');
       } catch (err) {
         console.error(err);
-        alert('Failed to delete payment record');
+        toast.error('Failed to delete payment record');
       }
     }
   };
@@ -95,9 +99,10 @@ const PaymentsTab = ({ projectId }) => {
         await api.delete(`/payments/${scheduleId}/legacy`);
         setShowHistoryModal(false);
         fetchSchedules();
+        toast.success('Legacy payment deleted');
       } catch (err) {
         console.error(err);
-        alert('Failed to delete legacy payment');
+        toast.error('Failed to delete legacy payment');
       }
     }
   };
@@ -106,15 +111,16 @@ const PaymentsTab = ({ projectId }) => {
     const newAmountStr = window.prompt(`Enter new amount for this payment:`, historyObj.amount);
     if (newAmountStr === null) return;
     const newAmount = parseFloat(newAmountStr);
-    if (isNaN(newAmount) || newAmount < 0) return alert('Invalid amount');
+    if (isNaN(newAmount) || newAmount < 0) return toast.error('Invalid amount');
     
     try {
       await api.put(`/payments/history/${historyObj.id}`, { amount: newAmount });
       setShowHistoryModal(false);
       fetchSchedules();
+      toast.success('Payment updated successfully');
     } catch (err) {
       console.error(err);
-      alert('Failed to update payment record');
+      toast.error('Failed to update payment record');
     }
   };
 
@@ -122,15 +128,16 @@ const PaymentsTab = ({ projectId }) => {
     const newAmountStr = window.prompt(`Enter new amount for this legacy payment:`, currentAmount);
     if (newAmountStr === null) return;
     const newAmount = parseFloat(newAmountStr);
-    if (isNaN(newAmount) || newAmount < 0) return alert('Invalid amount');
+    if (isNaN(newAmount) || newAmount < 0) return toast.error('Invalid amount');
     
     try {
       await api.put(`/payments/${scheduleId}/legacy`, { amount: newAmount });
       setShowHistoryModal(false);
       fetchSchedules();
+      toast.success('Legacy payment updated successfully');
     } catch (err) {
       console.error(err);
-      alert('Failed to update legacy payment');
+      toast.error('Failed to update legacy payment');
     }
   };
 

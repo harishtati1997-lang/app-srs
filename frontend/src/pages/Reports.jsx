@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Download, Eye } from 'lucide-react';
+import { Download, Eye, Printer } from 'lucide-react';
 import api from '../utils/api';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import toast from 'react-hot-toast';
+import { SkeletonTable } from '../components/Skeleton';
 
 const Reports = () => {
   const [reportData, setReportData] = useState(null);
@@ -20,8 +22,10 @@ const Reports = () => {
       
       const res = await api.get(`/reports/financial?${params.toString()}`);
       setReportData(res.data);
+      toast.success("Report generated successfully!");
     } catch (e) {
       console.error(e);
+      toast.error("Failed to generate financial report.");
     } finally {
       setLoading(false);
     }
@@ -100,14 +104,36 @@ const Reports = () => {
 
   const exportReport = () => {
     if (!reportData) return;
-    const doc = generateReportPDF();
-    doc.save(`Financial_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    try {
+      const doc = generateReportPDF();
+      doc.save(`Financial_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success("Report exported successfully!");
+    } catch (err) {
+      toast.error("Failed to export report");
+    }
   };
 
   const viewReport = () => {
     if (!reportData) return;
-    const doc = generateReportPDF();
-    window.open(doc.output('bloburl'), '_blank');
+    try {
+      const doc = generateReportPDF();
+      window.open(doc.output('bloburl'), '_blank');
+      toast.success("Report opened in new tab");
+    } catch (err) {
+      toast.error("Failed to view report");
+    }
+  };
+
+  const printReport = () => {
+    if (!reportData) return;
+    try {
+      const doc = generateReportPDF();
+      doc.autoPrint();
+      window.open(doc.output('bloburl'), '_blank');
+      toast.success("Opening Report for printing...");
+    } catch (err) {
+      toast.error("Failed to print report");
+    }
   };
 
   return (
@@ -131,13 +157,22 @@ const Reports = () => {
         </div>
       </div>
 
-      {reportData && (
+      {loading && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <SkeletonTable rows={3} cols={3} />
+        </div>
+      )}
+
+      {reportData && !loading && (
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Financial Summary</h3>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button className="btn btn-secondary" onClick={viewReport} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Eye size={16} /> View
+              </button>
+              <button className="btn btn-secondary" onClick={printReport} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Printer size={16} /> Print
               </button>
               <button className="btn btn-secondary" onClick={exportReport} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Download size={16} /> Export

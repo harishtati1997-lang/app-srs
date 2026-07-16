@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Users, Briefcase, CheckCircle, IndianRupee, TrendingUp, AlertCircle, Download } from 'lucide-react';
+import { Users, Briefcase, CheckCircle, IndianRupee, TrendingUp, AlertCircle, Download, Printer } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import api from '../utils/api';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import toast from 'react-hot-toast';
+import { SkeletonPage } from '../components/Skeleton';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -24,7 +26,7 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>Loading Dashboard...</div>;
+  if (loading) return <SkeletonPage />;
 
   const statCards = [
 
@@ -112,17 +114,39 @@ const Dashboard = () => {
 
   const exportDashboard = () => {
     if (!stats) return;
-    const doc = generateDashboardPDF();
-    doc.save(`Dashboard_${new Date().toISOString().split('T')[0]}.pdf`);
+    try {
+      const doc = generateDashboardPDF();
+      doc.save(`Dashboard_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success("Dashboard exported successfully!");
+    } catch (err) {
+      toast.error("Failed to export dashboard");
+    }
+  };
+
+  const printDashboard = () => {
+    if (!stats) return;
+    try {
+      const doc = generateDashboardPDF();
+      doc.autoPrint();
+      window.open(doc.output('bloburl'), '_blank');
+      toast.success("Opening Dashboard for printing...");
+    } catch (err) {
+      toast.error("Failed to print dashboard");
+    }
   };
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <h2 className="page-title" style={{ marginBottom: 0 }}>Dashboard Overview</h2>
-        <button className="btn btn-secondary" onClick={exportDashboard} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Download size={16} /> Export PDF
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn btn-secondary" onClick={printDashboard} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Printer size={16} /> Print
+          </button>
+          <button className="btn btn-secondary" onClick={exportDashboard} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Download size={16} /> Export PDF
+          </button>
+        </div>
       </div>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>

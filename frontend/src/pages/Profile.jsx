@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { User, Lock, Save, Camera } from 'lucide-react';
+import { User, Lock, Save, Camera, Database, Download, Shield } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
+import { SkeletonPage } from '../components/Skeleton';
 
 const Profile = ({ onLogout }) => {
   const [profile, setProfile] = useState(null);
   const [passwords, setPasswords] = useState({ current_password: '', new_password: '', confirm_password: '' });
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [backupLoading, setBackupLoading] = useState(false);
 
   // Built-in avatars for easy selection
   const defaultAvatars = [
@@ -27,6 +29,7 @@ const Profile = ({ onLogout }) => {
       setAvatarUrl(res.data.avatar || defaultAvatars[0]);
     } catch (err) {
       console.error(err);
+      toast.error('Failed to load profile');
     }
   };
 
@@ -53,14 +56,55 @@ const Profile = ({ onLogout }) => {
     try {
       await api.put('/users/me/avatar', { avatar: url });
       toast.success('Avatar updated successfully');
-      // Update local storage so Layout can see it if we were storing it there, but Layout will re-fetch or use state
       window.dispatchEvent(new Event('avatarChanged'));
     } catch (err) {
       toast.error('Failed to update avatar');
     }
   };
 
-  if (!profile) return <div style={{ padding: '2rem' }}>Loading...</div>;
+  const handleUniversalBackup = async () => {
+    setBackupLoading(true);
+    const toastId = toast.loading('Generating universal database backup...');
+    try {
+      const res = await api.get('/backup/export-json', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `SYAM_INFRA_Universal_Backup_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Universal backup downloaded successfully!', { id: toastId });
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to generate universal backup.', { id: toastId });
+    } finally {
+      setBackupLoading(false);
+    }
+  };
+
+  const handleSqliteBackup = async () => {
+    setBackupLoading(true);
+    const toastId = toast.loading('Downloading SQLite file...');
+    try {
+      const res = await api.get('/backup/export-sqlite', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `syam_infra_${new Date().toISOString().split('T')[0]}.db`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('SQLite backup downloaded successfully!', { id: toastId });
+    } catch (err) {
+      console.error(err);
+      toast.error('Server is running on PostgreSQL (Supabase). Use Universal JSON Backup instead.', { id: toastId });
+    } finally {
+      setBackupLoading(false);
+    }
+  };
+
+  if (!profile) return <SkeletonPage />;
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -122,6 +166,43 @@ const Profile = ({ onLogout }) => {
         </div>
 
       </div>
+
+      {/* Admin Database Backup Section */}
+      {profile.role === 'Admin' && (
+        <div className="card" style={{ marginTop: '2rem', border: '1px solid var(--border-color)', borderLeft: '4px solid var(--accent-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+            <Shield size={24} style={{ color: 'var(--accent-color)' }} />
+            <div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Database Safety & Data Export</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                Create complete snapshots of your business records across local or cloud (Supabase) databases.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
+            <button
+              onClick={handleUniversalBackup}
+              disabled={backupLoading}
+              className="btn btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: '1', minWidth: '220px', justifyContent: 'center' }}
+            >
+              <Database size={18} />
+              {backupLoading ? 'Exporting...' : 'Universal Backup (JSON)'}
+            </button>
+
+            <button
+              onClick={handleSqliteBackup}
+              disabled={backupLoading}
+              className="btn btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: '1', minWidth: '220px', justifyContent: 'center' }}
+            >
+              <Download size={18} />
+              {backupLoading ? 'Checking...' : 'Download SQLite File (.db)'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../utils/api';
-import { IndianRupee, FileText, CheckSquare, Banknote, Activity, Receipt, Package, Download, Eye } from 'lucide-react';
+import { IndianRupee, FileText, CheckSquare, Banknote, Activity, Receipt, Package, Download, Eye, Printer } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import toast from 'react-hot-toast';
+import { SkeletonPage } from '../components/Skeleton';
 import PaymentsTab from '../components/PaymentsTab';
 import ExpensesTab from '../components/ExpensesTab';
 import DocumentsTab from '../components/DocumentsTab';
@@ -25,7 +27,7 @@ const ProjectDetails = () => {
     setProject(res.data);
   };
 
-  if (!project) return <div>Loading...</div>;
+  if (!project) return <SkeletonPage />;
 
   const generateLedgerPDF = async () => {
     const payRes = await api.get(`/payments/project/${project.id}`);
@@ -235,9 +237,10 @@ const ProjectDetails = () => {
     try {
       const doc = await generateLedgerPDF();
       doc.save(`Ledger_${project.id}.pdf`);
+      toast.success("Ledger exported successfully!");
     } catch (err) {
       console.error("Failed to export ledger", err);
-      alert("Failed to export ledger. Check console for details.");
+      toast.error("Failed to export ledger. Check console for details.");
     }
   };
 
@@ -245,9 +248,22 @@ const ProjectDetails = () => {
     try {
       const doc = await generateLedgerPDF();
       window.open(doc.output('bloburl'), '_blank');
+      toast.success("Ledger opened in new tab");
     } catch (err) {
       console.error("Failed to view ledger", err);
-      alert("Failed to view ledger. Check console for details.");
+      toast.error("Failed to view ledger. Check console for details.");
+    }
+  };
+
+  const printLedger = async () => {
+    try {
+      const doc = await generateLedgerPDF();
+      doc.autoPrint();
+      window.open(doc.output('bloburl'), '_blank');
+      toast.success("Opening Ledger for printing...");
+    } catch (err) {
+      console.error("Failed to print ledger", err);
+      toast.error("Failed to print ledger. Check console for details.");
     }
   };
 
@@ -302,9 +318,12 @@ const ProjectDetails = () => {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Project Details</h3>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <button className="btn btn-secondary" onClick={viewLedger} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Eye size={16} /> View Ledger
+                </button>
+                <button className="btn btn-secondary" onClick={printLedger} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Printer size={16} /> Print Ledger
                 </button>
                 <button className="btn btn-secondary" onClick={exportLedger} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Download size={16} /> Export

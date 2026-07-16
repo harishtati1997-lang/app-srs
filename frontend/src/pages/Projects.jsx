@@ -3,9 +3,12 @@ import { Plus, Search, Edit2, Trash2, Home, Hammer, PaintBucket, PenTool } from 
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import { numberToWords } from '../utils/numberToWords';
+import toast from 'react-hot-toast';
+import { SkeletonPage } from '../components/Skeleton';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -27,6 +30,9 @@ const Projects = () => {
       setProjects(pRes.data);
     } catch (err) {
       console.error(err);
+      toast.error('Failed to fetch projects');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,9 +50,10 @@ const Projects = () => {
       }
       closeModal();
       fetchData();
+      toast.success(editingId ? 'Project updated successfully!' : 'Project created successfully!');
     } catch (err) {
       console.error(err);
-      alert('Failed to save project');
+      toast.error('Failed to save project');
     }
   };
 
@@ -70,9 +77,10 @@ const Projects = () => {
       try {
         await api.delete(`/projects/${id}`);
         fetchData();
+        toast.success('Project deleted successfully');
       } catch (err) {
         console.error(err);
-        alert('Failed to delete project');
+        toast.error('Failed to delete project');
       }
     }
   };
@@ -104,6 +112,8 @@ const Projects = () => {
     const revenue = pList.reduce((sum, p) => sum + p.value, 0);
     return { ...cat, count: pList.length, revenue };
   });
+
+  if (loading) return <SkeletonPage />;
 
   return (
     <div>

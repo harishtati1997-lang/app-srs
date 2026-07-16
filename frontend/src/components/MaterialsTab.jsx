@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Package } from 'lucide-react';
 import api from '../utils/api';
+import toast from 'react-hot-toast';
 
 const MaterialsTab = ({ projectId }) => {
   const [materials, setMaterials] = useState([]);
@@ -44,9 +45,10 @@ const MaterialsTab = ({ projectId }) => {
       }
       closeModal();
       fetchMaterials();
+      toast.success(editingId ? 'Material updated successfully!' : 'Material added successfully!');
     } catch (err) {
       console.error(err);
-      alert('Failed to save material');
+      toast.error('Failed to save material');
     }
   };
 
@@ -66,9 +68,10 @@ const MaterialsTab = ({ projectId }) => {
       try {
         await api.delete(`/projects/${projectId}/materials/${id}`);
         fetchMaterials();
+        toast.success('Material removed');
       } catch (err) {
         console.error(err);
-        alert('Failed to delete material');
+        toast.error('Failed to delete material');
       }
     }
   };

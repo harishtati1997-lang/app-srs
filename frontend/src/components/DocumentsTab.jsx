@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 import { Download, File as FileIcon } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const DocumentsTab = ({ projectId }) => {
   const [documents, setDocuments] = useState([]);
@@ -24,7 +25,7 @@ const DocumentsTab = ({ projectId }) => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file) return alert('Please select a file to upload');
+    if (!file) return toast.error('Please select a file to upload');
 
     const data = new FormData();
     data.append('name', formData.name);
@@ -41,9 +42,10 @@ const DocumentsTab = ({ projectId }) => {
       setFormData({ name: '', type: '' });
       setFile(null);
       fetchDocuments();
+      toast.success('Document uploaded successfully!');
     } catch (err) {
       console.error(err);
-      alert('Failed to upload document');
+      toast.error('Failed to upload document');
     }
   };
 
