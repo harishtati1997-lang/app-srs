@@ -1,8 +1,13 @@
 import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Use environment variable or default local sqlite connection for dev
+# Load backend/.env before reading configuration. The file is intentionally
+# excluded from version control because it contains the database password.
+load_dotenv()
+
+# Use environment variable or default local sqlite connection for development.
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./syam_infra.db")
 
 # SQLAlchemy 1.4+ requires "postgresql://" instead of "postgres://"
