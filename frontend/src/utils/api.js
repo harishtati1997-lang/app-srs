@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://syam-infra-cms.onrender.com/api',
+  baseURL: 'https://syam-infra-cms-0pc3.onrender.com/api',
 });
 
 api.interceptors.request.use(
