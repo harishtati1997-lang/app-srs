@@ -1,0 +1,28 @@
+# Render infrastructure-as-code for automatic deployment
+# After connecting your GitHub repo in Render, importing this file will
+# create a Web Service for the backend and a managed Postgres database.
+
+services:
+  - type: web
+    name: sree-srs-api
+    env: python
+    branch: main
+    root: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: starter
+
+databases:
+  - name: sree-srs-db
+    engine: postgresql
+    version: "14"
+    plan: starter
+    disk: 10
+
+# Notes:
+# - Render will create a DATABASE_URL for the managed DB; set the
+#   backend service's `DATABASE_URL` env var to use that value (Render
+#   usually publishes it automatically to the service when using render.yaml).
+# - Set the backend service env var `FRONTEND_URL` to your Vercel frontend URL
+#   (e.g. https://frontend-absi66ll2-akshaychalla0923-3386s-projects.vercel.app)
+#   so the backend's CORS is restricted in production.
