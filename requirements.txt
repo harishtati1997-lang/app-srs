@@ -1,0 +1,2 @@
+-r backend/requirements.txt
+uvicorn[standard]>=0.20.0
