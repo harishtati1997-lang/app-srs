@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const BASE = import.meta?.env?.VITE_API_BASE || 'http://localhost:8000/api';
+
 const api = axios.create({
-  baseURL: 'https://syam-infra-cms-0pc3.onrender.com/api',
+  baseURL: BASE,
 });
 
 api.interceptors.request.use(
