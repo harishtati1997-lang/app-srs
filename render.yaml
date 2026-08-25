@@ -9,7 +9,9 @@ services:
     branch: main
     root: backend
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # Ensure Python can import the `app` package by adding the backend
+    # directory to PYTHONPATH at runtime. Using bash -lc for compatibility.
+    startCommand: bash -lc 'PYTHONPATH="$PWD/backend" uvicorn app.main:app --host 0.0.0.0 --port $PORT'
     plan: starter
 
 databases:
