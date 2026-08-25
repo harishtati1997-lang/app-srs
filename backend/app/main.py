@@ -1,17 +1,22 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base, SessionLocal
+import os
 from . import models, auth
 from .routers import auth as auth_router, projects, dashboard, payments, expenses, documents, reports, progress, users, invoices, materials, backup
 
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="SYAM INFRA Management System API")
+app = FastAPI(title="SREE SRS CONSTRUCTIONS Management System API")
+
+# Configure CORS origins from environment for production safety.
+frontend_url = os.getenv("FRONTEND_URL")
+allow_origins = [frontend_url] if frontend_url else ["*"]  # use specific origin in prod
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # For development
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,4 +47,4 @@ def create_admin_user():
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to SYAM INFRA API"}
+    return {"message": "Welcome to SREE SRS CONSTRUCTIONS API"}
