@@ -7,8 +7,15 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # excluded from version control because it contains the database password.
 load_dotenv()
 
-# Use environment variable or default local sqlite connection for development.
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./syam_infra.db")
+# Use a configured database URL, falling back to local SQLite when the
+# environment variable is blank or still contains a dashboard placeholder.
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+if not SQLALCHEMY_DATABASE_URL or SQLALCHEMY_DATABASE_URL.lower() in {
+    "your_database_url",
+    "your-database-url",
+    "change-me",
+}:
+    SQLALCHEMY_DATABASE_URL = "sqlite:///./sree_srs.db"
 
 # SQLAlchemy 1.4+ requires "postgresql://" instead of "postgres://"
 if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
