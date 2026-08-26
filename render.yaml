@@ -7,11 +7,9 @@ services:
     name: sree-srs-api
     env: python
     branch: main
-    root: backend
+    rootDir: backend
     buildCommand: pip install -r requirements.txt
-    # Run the app using the full module path from the repo root so imports
-    # work regardless of the service working directory on Render.
-    startCommand: bash -lc 'uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT'
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     plan: starter
 
 databases:
