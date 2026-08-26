@@ -4,7 +4,7 @@ import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { SkeletonPage } from '../components/Skeleton';
 
-const Profile = ({ onLogout }) => {
+const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [passwords, setPasswords] = useState({ current_password: '', new_password: '', confirm_password: '' });
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -44,8 +44,8 @@ const Profile = ({ onLogout }) => {
         current_password: passwords.current_password,
         new_password: passwords.new_password
       });
-      toast.success('Password updated successfully. Please login again.');
-      setTimeout(() => onLogout(), 1500);
+      toast.success('Password updated successfully.');
+      setPasswords({ current_password: '', new_password: '', confirm_password: '' });
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Failed to update password');
     }
@@ -70,7 +70,7 @@ const Profile = ({ onLogout }) => {
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `SYAM_INFRA_Universal_Backup_${new Date().toISOString().split('T')[0]}.json`);
+      link.setAttribute('download', `SREE_SRS_Universal_Backup_${new Date().toISOString().split('T')[0]}.json`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -91,7 +91,7 @@ const Profile = ({ onLogout }) => {
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `syam_infra_${new Date().toISOString().split('T')[0]}.db`);
+      link.setAttribute('download', `sree_srs_${new Date().toISOString().split('T')[0]}.db`);
       document.body.appendChild(link);
       link.click();
       link.remove();

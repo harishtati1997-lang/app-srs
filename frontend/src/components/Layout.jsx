@@ -1,9 +1,9 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Briefcase, FileBarChart, LogOut, Moon, Sun, Menu, Shield, Receipt } from 'lucide-react';
+import { LayoutDashboard, Users, Briefcase, FileBarChart, Moon, Sun, Menu, Shield, Receipt } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 
-const Layout = ({ toggleTheme, theme, onLogout }) => {
+const Layout = ({ toggleTheme, theme }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'Viewer');
@@ -54,8 +54,8 @@ const Layout = ({ toggleTheme, theme, onLogout }) => {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Briefcase size={24} color="var(--accent-color)" />
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-color)' }}>SYAM INFRA</h2>
+          <img src="/logo.png" alt="SREE SRS CONSTRUCTIONS Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-color)' }}>SREE SRS CONSTRUCTIONS</h2>
         </div>
         <nav style={{ flex: 1, padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {navItems.map((item) => {
@@ -107,14 +107,6 @@ const Layout = ({ toggleTheme, theme, onLogout }) => {
             </div>
             Profile
           </Link>
-          <button 
-            onClick={onLogout}
-            style={{ width: '100%', justifyContent: 'flex-start', marginTop: '0.5rem' }} 
-            className="btn btn-secondary"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
         </div>
       </aside>
 
