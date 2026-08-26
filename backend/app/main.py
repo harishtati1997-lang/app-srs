@@ -12,7 +12,11 @@ app = FastAPI(title="SREE SRS CONSTRUCTIONS Management System API")
 
 # Configure CORS origins from environment for production safety.
 frontend_url = os.getenv("FRONTEND_URL")
-allow_origins = [frontend_url] if frontend_url else ["*"]  # use specific origin in prod
+allow_origins = ["https://srs-app-frontend.vercel.app"]
+if frontend_url and frontend_url not in allow_origins:
+    allow_origins.append(frontend_url)
+if not frontend_url:
+    allow_origins.append("*")
 
 app.add_middleware(
     CORSMiddleware,
