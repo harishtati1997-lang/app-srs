@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Printer } from 'lucide-react';
 import api from '../utils/api';
 import { numberToWords } from '../utils/numberToWords';
+import { Toaster } from 'react-hot-toast';
 import '../App.css';
 
 const InvoiceView = () => {
@@ -42,6 +43,7 @@ const InvoiceView = () => {
 
   return (
     <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '2rem', fontFamily: 'Arial, sans-serif', color: '#000' }}>
+      <Toaster position="top-right" />
       <div className="print-controls" style={{ maxWidth: '800px', margin: '0 auto 1rem', display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={handlePrint} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Printer size={18} /> Print / Save PDF
@@ -60,13 +62,14 @@ const InvoiceView = () => {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3rem' }}>
           <div>
-            <img src="/logo.png" alt="SYAM INFRA Logo" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} onError={(e) => { e.target.style.display = 'none'; }} />
           </div>
           <div style={{ textAlign: 'right' }}>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', color: '#C5A059', margin: '0 0 0.5rem 0', letterSpacing: '1px' }}>SYAM INFRA</h2>
-            <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.95rem' }}>1-3-99 Vijaya ganapathi street</p>
-            <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.95rem' }}>bangla thota nawabpet nellore</p>
-            <p style={{ margin: '0', fontSize: '0.95rem' }}>Contact: +91 9849525991</p>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', color: '#C5A059', margin: '0 0 0.5rem 0', letterSpacing: '1px' }}>SREE SRS CONSTRUCTIONS</h2>
+            <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.95rem' }}>Near Addala Sai Baba Temple, Padmavathi Nagar,</p>
+            <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.95rem' }}>Balaji Nagar, Nellore - 524 002</p>
+            <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.95rem' }}>Phone: +91 9490142143, 8499849989</p>
+            <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.95rem' }}>Email: sreesrsconstructions@gmail.com</p>
+            <p style={{ margin: '0', fontSize: '0.95rem' }}>GSTIN: 37BWZPS8630Q1Z0</p>
           </div>
         </div>
 
@@ -125,7 +128,7 @@ const InvoiceView = () => {
         {/* Signature */}
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontWeight: 'bold', margin: '0 0 3rem 0', fontSize: '0.9rem' }}>For SYAM INFRA</p>
+            <p style={{ fontWeight: 'bold', margin: '0 0 3rem 0', fontSize: '0.9rem' }}>For SREE SRS CONSTRUCTIONS</p>
             <div style={{ borderBottom: '1px solid #000', width: '200px', margin: '0 auto 0.5rem' }}></div>
             <p style={{ fontWeight: 'bold', margin: 0, fontSize: '0.9rem' }}>Authorized Signatory</p>
           </div>

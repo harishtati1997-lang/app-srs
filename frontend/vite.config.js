@@ -8,24 +8,12 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'SYAM INFRA CMS',
-        short_name: 'SYAM INFRA',
-        description: 'Construction Management System for SYAM INFRA',
+        name: 'SREE SRS CONSTRUCTIONS',
+        short_name: 'SREE SRS',
+        description: 'Construction Management System for SREE SRS CONSTRUCTIONS',
         theme_color: '#1a1f2c',
         background_color: '#1a1f2c',
         display: 'standalone',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
       },
       devOptions: {
         enabled: true

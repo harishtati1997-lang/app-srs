@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Briefcase } from 'lucide-react';
 import api from '../utils/api';
 
 const Login = ({ onLogin }) => {
@@ -29,11 +28,8 @@ const Login = ({ onLogin }) => {
       <div className="card auth-card">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-            <div style={{ padding: '1rem', backgroundColor: 'var(--accent-light)', borderRadius: '50%' }}>
-              <Briefcase size={32} color="var(--accent-color)" />
-            </div>
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>SYAM INFRA</h1>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>SREE SRS CONSTRUCTIONS</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Management System Login</p>
         </div>
         
