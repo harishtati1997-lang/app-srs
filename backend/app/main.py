@@ -37,6 +37,7 @@ app.include_router(backup.router)
 @app.on_event("startup")
 def create_admin_user():
     db = SessionLocal()
+    projects.purge_deleted_projects(db)
     admin = db.query(models.User).filter(models.User.username == "admin").first()
     if not admin:
         hashed_password = auth.get_password_hash("admin123")

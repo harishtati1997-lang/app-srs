@@ -1,9 +1,42 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+import os
 from .. import schemas, models, deps
 
 router = APIRouter(prefix="/api/projects", tags=["projects"])
+
+def purge_project(db: Session, project: models.Project):
+    for document in list(project.documents):
+        if document.file_path and os.path.exists(document.file_path):
+            os.remove(document.file_path)
+        db.delete(document)
+
+    for expense in list(project.expenses):
+        if expense.bill_file_path and os.path.exists(expense.bill_file_path):
+            os.remove(expense.bill_file_path)
+        db.delete(expense)
+
+    for schedule in list(project.schedules):
+        for history in list(schedule.history):
+            db.delete(history)
+        db.delete(schedule)
+
+    for invoice in list(project.invoices):
+        db.delete(invoice)
+    for progress in list(project.progress_updates):
+        db.delete(progress)
+    for material in list(project.materials):
+        db.delete(material)
+
+    db.delete(project)
+
+def purge_deleted_projects(db: Session):
+    deleted_projects = db.query(models.Project).filter(models.Project.is_deleted == True).all()
+    for project in deleted_projects:
+        purge_project(db, project)
+    if deleted_projects:
+        db.commit()
 
 @router.get("/", response_model=List[schemas.Project])
 def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(deps.get_db), current_user: models.User = Depends(deps.get_current_user)):
@@ -42,6 +75,6 @@ def delete_project(project_id: str, db: Session = Depends(deps.get_db), current_
     db_project = db.query(models.Project).filter(models.Project.id == project_id).first()
     if not db_project:
         raise HTTPException(status_code=404, detail="Project not found")
-    db_project.is_deleted = True
+    purge_project(db, db_project)
     db.commit()
     return {"message": "Project deleted successfully"}
