@@ -62,6 +62,7 @@ const InvoiceView = () => {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3rem' }}>
           <div>
+            <img src="/sree-srs-logo.svg" alt="SREE SRS CONSTRUCTIONS" style={{ width: '220px', height: 'auto' }} />
           </div>
           <div style={{ textAlign: 'right' }}>
             <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', color: '#C5A059', margin: '0 0 0.5rem 0', letterSpacing: '1px' }}>SREE SRS CONSTRUCTIONS</h2>
