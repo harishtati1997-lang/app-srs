@@ -54,7 +54,7 @@ const Layout = ({ toggleTheme, theme }) => {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <img src="/sree-srs-logo.svg" alt="SREE SRS CONSTRUCTIONS" style={{ width: '100%', maxWidth: '220px', height: 'auto' }} />
+          <img src="/logo.png" alt="SREE SRS CONSTRUCTIONS" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
         </div>
         <nav style={{ flex: 1, padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {navItems.map((item) => {

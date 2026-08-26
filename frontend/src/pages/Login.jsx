@@ -28,6 +28,7 @@ const Login = ({ onLogin }) => {
       <div className="card auth-card">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+              <img src="/logo.png" alt="SREE SRS CONSTRUCTIONS" style={{ height: '80px', width: '80px', objectFit: 'contain' }} />
           </div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>SREE SRS CONSTRUCTIONS</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Management System Login</p>

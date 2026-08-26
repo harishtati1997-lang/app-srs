@@ -14,6 +14,18 @@ export default defineConfig({
         theme_color: '#1a1f2c',
         background_color: '#1a1f2c',
         display: 'standalone',
+        icons: [
+          {
+            src: 'logo.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'logo.png',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ]
       },
       devOptions: {
         enabled: true
